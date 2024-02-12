@@ -245,6 +245,8 @@ $RECYCLE.BIN/
 
 revisitop/
 weights/
-*.pt
+/**/*.pt
+gldv2/
+!gldv2/download_data.py
 *.png
-gldv2/train/** */
+gldv2/train/
