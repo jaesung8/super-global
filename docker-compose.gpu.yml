@@ -1,0 +1,20 @@
+version: "3.3"
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile-gpu
+      args:
+        env: local
+    shm_size: 60gb
+    command: python3.8 test.py MODEL.DEPTH 101 TEST.WEIGHTS ./weights/R101.pyth TEST.DATA_DIR revisitop/data/datasets
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 2
+              capabilities: [gpu]
+    volumes:
+      - .:/super-global
+      - ./torchcache:/root/.cache/torch/hub/checkpoints/
