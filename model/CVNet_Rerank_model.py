@@ -53,7 +53,6 @@ class CVNet_Rerank(nn.Module):
         with torch.no_grad():
             query_feats = self.extract_feats(query_img, self.encoder_q, self.feat_ids, self.bottleneck_ids, self.lids)
             key_feats = self.extract_feats(key_img, self.encoder_q, self.feat_ids, self.bottleneck_ids, self.lids)
-            
             corr_qk = Correlation.build_crossscale_correlation(query_feats[0], key_feats[0], self.scales, self.conv2ds)
             logits_qk = self.cv_learner(corr_qk)
             score = self.softmax(logits_qk)[:,1]

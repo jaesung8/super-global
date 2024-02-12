@@ -59,7 +59,7 @@ _C.TEST.WEIGHTS = ""
 _C.TEST.DATA_DIR = ""
 _C.TEST.DATASET_LIST = ["roxford5k"]
 _C.TEST.SCALE_LIST = 3
-_C.TEST.TOPK_LIST = [400]
+_C.TEST.TOPK_LIST = [100]
 
 # ------------------------------------------------------------------------------------ #
 # Common train/test data loader options
@@ -112,7 +112,7 @@ _C.SupG.sgem = True
 _C.SupG.rgem = True
 _C.SupG.relup = True
 _C.SupG.rerank = True
-_C.SupG.onemeval = True
+_C.SupG.onemeval = False
 # ------------------------------------------------------------------------------------ #
 # Deprecated keys
 # ------------------------------------------------------------------------------------ #

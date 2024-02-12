@@ -35,6 +35,60 @@ def extract_feature(model, data_dir, dataset, gnd_fn, split, scale_list_fix, gem
         
     return img_feats
 
+
+@torch.no_grad()
+def extract_cvnet_feature(model, data_dir, dataset, gnd_fn, split, scale_list):
+    with torch.no_grad():
+        test_loader = loader.construct_loader(data_dir, dataset, gnd_fn, split, scale_list)
+        img_feats = [[] for i in range(len(scale_list))] 
+
+        for im_list in tqdm(test_loader):
+            for idx in range(len(im_list)):
+                im_list[idx] = im_list[idx].cuda()
+                desc = model.encoder_q._forward_singlescale(im_list[idx], False, False)
+                if len(desc.shape) == 1:
+                    desc.unsqueeze_(0)
+                desc = F.normalize(desc, p=2, dim=1)
+                img_feats[idx].append(desc.detach().cpu())
+
+        for idx in range(len(img_feats)):
+            img_feats[idx] = torch.cat(img_feats[idx], dim=0)
+            if len(img_feats[idx].shape) == 1:
+                img_feats[idx].unsqueeze_(0)
+
+        img_feats_agg = F.normalize(torch.mean(torch.cat([img_feat.unsqueeze(0) for img_feat in img_feats], dim=0), dim=0), p=2, dim=1)
+        img_feats_agg = img_feats_agg.cpu().numpy()
+
+    return img_feats_agg
+
+
+@torch.no_grad()
+def extract_feature_list(model, data_dir, dataset, gnd_fn, split, scale_list_fix, gemp, rgem, sgem):
+    with torch.no_grad():
+        test_loader = loader.construct_loader(data_dir, dataset, gnd_fn, split, scale_list_fix)
+        img_feats = [] 
+        
+        for im_list in tqdm(test_loader):
+            for idx in range(len(im_list)):
+                im_list[idx] = im_list[idx].cuda()
+                
+                desc = model.encoder_q._forward(im_list[idx])
+                desc = torch.stack(desc, dim=0)
+
+                img_feats.append(desc.squeeze(1))
+
+        # for idx in range(len(img_feats)):
+        #     img_feats[idx] = torch.cat(img_feats[idx], dim=0)
+        #     if len(img_feats[idx].shape) == 1:
+        #         img_feats[idx].unsqueeze_(0)
+        img_feats = torch.stack(img_feats, dim=0)
+
+        # img_feats = F.normalize(img_feats, p=2, dim=1)
+        # img_feats = img_feats.cpu().numpy()
+        
+    return img_feats
+
+
 @torch.no_grad()
 def test_revisitop(cfg, ks, ranks):
     # revisited evaluation

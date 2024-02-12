@@ -21,7 +21,6 @@ class MDescAug(nn.Module):
         
         ranks_trans_1000 = torch.transpose(ranks,1,0)[:,:self.M] # 70 400 
         
-        
         X_tensor1 = torch.tensor(X[ranks_trans_1000]).cuda()
         
         res_ie = torch.einsum('abc,adc->abd',
