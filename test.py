@@ -8,13 +8,13 @@ from config import cfg
 from utils.training import train
 
 def main():
-    # config.load_cfg_fom_args("test a CVNet model.")
-    # cfg.NUM_GPUS=1
-    # cfg.freeze()
-    # CVNet_tester.__main__()
+    config.load_cfg_fom_args("test a CVNet model.")
+    cfg.NUM_GPUS=1
+    cfg.freeze()
+    CVNet_tester.__main__()
     
     
-    train()
+    # train()
 
 
 

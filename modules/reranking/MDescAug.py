@@ -5,6 +5,7 @@ import torch
 from torch import nn
 import numpy as np
 
+device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 
 class MDescAug(nn.Module):
@@ -21,7 +22,7 @@ class MDescAug(nn.Module):
         
         ranks_trans_1000 = torch.transpose(ranks,1,0)[:,:self.M] # 70 400 
         
-        X_tensor1 = torch.tensor(X[ranks_trans_1000]).cuda()
+        X_tensor1 = torch.tensor(X[ranks_trans_1000]).to(device)
         
         res_ie = torch.einsum('abc,adc->abd',
                 X_tensor1,X_tensor1) # 70 400 400
@@ -34,7 +35,11 @@ class MDescAug(nn.Module):
         res_ie_ranks = torch.squeeze(res_ie_ranks,-1) # 70 400 10
         x_dba = X[ranks_trans_1000] # 70 1 400 2048
         
-        
+        bincount = torch.bincount(res_ie_ranks.flatten())
+        rank_count = bincount[res_ie_ranks]
+        rank_count = rank_count.view(70, 400, 10)
+        rank_count_sum = rank_count.sum(dim=-1)
+
         x_dba_list = []
         for i,j in zip(res_ie_ranks,x_dba):
             # we should avoid for-loop in python, 
@@ -53,4 +58,4 @@ class MDescAug(nn.Module):
         for i in range(ranks_trans_1000_pre.shape[0]):
             temp_concat = ranks_trans_1000[i][ranks_trans_1000_pre[i]]
             rerank_dba_final.append(temp_concat) # 400
-        return rerank_dba_final, res_top1000_dba, ranks_trans_1000_pre, x_dba
+        return rerank_dba_final, res_top1000_dba, ranks_trans_1000_pre, x_dba, rank_count_sum

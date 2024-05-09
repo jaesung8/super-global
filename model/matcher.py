@@ -8,7 +8,6 @@ from .transformer import TransformerEncoder, TransformerEncoderLayer
 class MatchERT(nn.Module):
     def __init__(self, device, d_global, d_model, nhead, num_encoder_layers, dim_feedforward, dropout, activation, normalize_before):
         super(MatchERT, self).__init__()
-        d_model = d_global
         assert (d_model % 2 == 0)
         encoder_layer = TransformerEncoderLayer(d_model, nhead, dim_feedforward, dropout, activation, normalize_before)
         encoder_norm = nn.LayerNorm(d_model) if normalize_before else None

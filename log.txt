@@ -1,0 +1,288 @@
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Retrieval results: mAP E: 98.14, M: 90.89, H: 80.31
+Start print log
+Retrieval results: mAP E: 95.46, M: 85.65, H: 72.03
+Start print log
+Start print log
+Start print log
+Retrieval results: mAP E: 98.14, M: 90.89, H: 80.31
+Start print log
+Retrieval results: mAP E: 98.14, M: 90.89, H: 80.31
+Start print log
+Retrieval results: mAP E: 98.14, M: 90.89, H: 80.31
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Retrieval results: mAP E: 98.14, M: 90.89, H: 80.31
+Start print log
+Retrieval results: mAP E: 98.14, M: 90.89, H: 80.31
+Start print log
+Start print log
+Start print log
+Start print log
+Retrieval results: mAP E: 98.14, M: 90.89, H: 80.31
+Start print log
+Retrieval results: mAP E: 98.14, M: 90.89, H: 80.31
+Start print log
+Start print log
+Start print log
+Retrieval results: mAP E: 98.14, M: 90.89, H: 80.31
+Start print log
+Retrieval results: mAP E: 98.14, M: 90.89, H: 80.31
+Start print log
+Retrieval results: mAP E: 98.14, M: 90.89, H: 80.31
+Start print log
+Retrieval results: mAP E: 98.14, M: 90.89, H: 80.31
+Start print log
+Retrieval results: mAP E: 98.14, M: 90.89, H: 80.31
+Start print log
+Retrieval results: mAP E: 98.14, M: 90.89, H: 80.31
+Start print log
+Retrieval results: mAP E: 98.14, M: 90.89, H: 80.31
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Retrieval results: mAP E: 98.14, M: 90.89, H: 80.31
+Start print log
+Start print log
+Start print log
+Retrieval results: mAP E: 98.14, M: 90.89, H: 80.31
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Retrieval results: mAP E: 98.75, M: 90.33, H: 79.02
+Start print log
+Retrieval results: mAP E: 98.75, M: 90.33, H: 79.02
+Start print log
+Retrieval results: mAP E: 98.14, M: 90.89, H: 80.31
+Start print log
+Retrieval results: mAP E: 98.75, M: 90.33, H: 79.02
+Start print log
+Retrieval results: mAP E: 98.75, M: 90.33, H: 79.02
+Start print log
+Retrieval results: mAP E: 98.75, M: 90.33, H: 79.02
+Start print log
+Retrieval results: mAP E: 98.75, M: 90.33, H: 79.02
+Start print log
+Retrieval results: mAP E: 98.75, M: 90.33, H: 79.02
+Start print log
+Retrieval results: mAP E: 98.75, M: 90.33, H: 79.02
+Start print log
+Retrieval results: mAP E: 98.75, M: 90.33, H: 79.02
+Start print log
+Retrieval results: mAP E: 98.75, M: 90.33, H: 79.02
+Start print log
+Retrieval results: mAP E: 98.75, M: 90.33, H: 79.02
+Start print log
+Retrieval results: mAP E: 98.75, M: 90.33, H: 79.02
+Start print log
+Retrieval results: mAP E: 98.75, M: 90.33, H: 79.02
+Start print log
+Retrieval results: mAP E: 98.75, M: 90.33, H: 79.02
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Retrieval results: mAP E: 98.75, M: 90.33, H: 79.02
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Retrieval results: mAP E: 98.75, M: 90.33, H: 79.02
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log

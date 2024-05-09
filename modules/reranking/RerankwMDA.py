@@ -14,7 +14,7 @@ class RerankwMDA(nn.Module):
         self.M = M 
         self.K = K + 1 # including oneself
         self.beta = beta
-    def forward(self, ranks, rerank_dba_final, res_top1000_dba, ranks_trans_1000_pre, x_dba):
+    def forward(self, ranks, rerank_dba_final, res_top1000_dba, ranks_trans_1000_pre, x_dba, rank_count_sum):
 
         ranks_trans_1000 = torch.stack(rerank_dba_final,0) # 70 400
         ranks_value_trans_1000 = -torch.sort(-res_top1000_dba,-1)[0] # 70 400
@@ -28,18 +28,31 @@ class RerankwMDA(nn.Module):
         # res_rerank = torch.sum(torch.einsum(
         #     'abc,adc->abd',X1,X2),1)
         
-        #weighted average pooling
-        ranks_value_trans = torch.unsqueeze(ranks_value_trans_1000[:,:self.K].clone(),-1) # 70 10 1
-        ranks_value_trans[:,1:,:] *= self.beta
-        ranks_value_trans[:,0:1,:] = 1.
-        X1_wap = torch.sum(X1 * ranks_value_trans, 1) / torch.sum(ranks_value_trans,1)
-        X1_wap = torch.unsqueeze(X1_wap, 1)
+        # weighted average pooling
+        # ranks_value_trans = torch.unsqueeze(ranks_value_trans_1000[:,:self.K].clone(),-1) # 70 10 1
+        # ranks_value_trans[:,1:,:] *= self.beta
+        # ranks_value_trans[:,0:1,:] = 1.
+        # X1_wap = torch.sum(X1 * ranks_value_trans, 1) / torch.sum(ranks_value_trans,1)
+        # X1_wap = torch.unsqueeze(X1_wap, 1)
+        # res_rerank = torch.sum(torch.einsum(
+        #     'abc,adc->abd',X1_wap,X2),1) # 70 400
+
+        # count weighted average pooling
+        count_sum = torch.take_along_dim(rank_count_sum.unsqueeze(-1), ranks_trans, 1)
+        print(count_sum.size())
+        X1_cwap = torch.sum(X1 * count_sum, 1) / torch.sum(count_sum, 1)
+        print(X1_cwap.size(), X2.size())
         res_rerank = torch.sum(torch.einsum(
-            'abc,adc->abd',X1_wap,X2),1) # 70 400
+            'abc,adc->abd',X1_cwap.unsqueeze(1), X2),1)
 
+        # count_add
+        # norm_count_sum = nn.functional.normalize(rank_count_sum.double())
+        # norm_count_sum = rank_count_sum / rank_count_sum.sum(dim=1).unsqueeze(1)
+        # print(norm_count_sum.size())
 
-         # 70 400
-
+        # 70 400
+        # print(ranks_value_trans_1000, res_rerank, norm_count_sum)
+        # res_rerank = (ranks_value_trans_1000 + res_rerank + norm_count_sum) / 3. # 70 400
         res_rerank = (ranks_value_trans_1000 + res_rerank) / 2. # 70 400
         res_rerank_ranks = torch.argsort(-res_rerank, axis=-1) # 70 400
         

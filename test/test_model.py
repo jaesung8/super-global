@@ -19,6 +19,8 @@ from modules.reranking.RerankwMDA import RerankwMDA
 from model.matcher import MatchERT
 
 
+device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+
 @torch.no_grad()
 def test_model(model, data_dir, dataset_list, scale_list, is_rerank, gemp, rgem, sgem, onemeval, depth, logger):
     torch.backends.cudnn.benchmark = False
@@ -64,12 +66,13 @@ def test_model(model, data_dir, dataset_list, scale_list, is_rerank, gemp, rgem,
             torch.save(X, x_path)
 
         cfg = config_gnd(dataset,data_dir)
-        Q = torch.tensor(Q).cuda()
-        X = torch.tensor(X).cuda()
+        
+        Q = torch.tensor(Q).to(device)
+        X = torch.tensor(X).to(device)
         
         print("perform global feature reranking")
         if onemeval:
-            X_expand = torch.load(f"./feats_1m_RN{depth}.pth").cuda()
+            X_expand = torch.load(f"./feats_1m_RN{depth}.pth").to(device)
             X = torch.concat([X,X_expand],0)
         sim = torch.matmul(X, Q.T) # 6322 70
         ranks = torch.argsort(-sim, axis=0) # 6322 70
@@ -114,8 +117,8 @@ def test_model(model, data_dir, dataset_list, scale_list, is_rerank, gemp, rgem,
         print('Retrieval results: mAP E: {}, M: {}, H: {}'.format(np.around(mapE*100, decimals=2), np.around(mapM*100, decimals=2), np.around(mapH*100, decimals=2)))
 
         if is_rerank:
-            rerank_dba_final, res_top1000_dba, ranks_trans_1000_pre, x_dba = MDescAug_obj(X, Q, ranks)
-            ranks = RerankwMDA_obj(ranks, rerank_dba_final, res_top1000_dba, ranks_trans_1000_pre, x_dba)
+            rerank_dba_final, res_top1000_dba, ranks_trans_1000_pre, x_dba, res_ie_ranks = MDescAug_obj(X, Q, ranks)
+            ranks = RerankwMDA_obj(ranks, rerank_dba_final, res_top1000_dba, ranks_trans_1000_pre, x_dba, res_ie_ranks)
         ranks = ranks.data.cpu().numpy()
 
         plt_ranks = ranks.copy()
@@ -331,10 +334,10 @@ def test_transformer_model(model, data_dir, dataset_list, scale_list, gemp, rgem
     state_dict = model.state_dict()
     model.load_state_dict(state_dict)
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-    rerank_model = MatchERT(device=device, d_global=2048, d_model=128, nhead=4, num_encoder_layers=6, 
+    rerank_model = MatchERT(device=device, d_global=2048, d_model=512, nhead=4, num_encoder_layers=6, 
             dim_feedforward=1024, dropout=0.0, activation='relu', normalize_before=False).to(device)
-    rerank_model = nn.DataParallel(rerank_model)
-    rerank_model.load_state_dict(torch.load('trans_check.pt'))
+    # rerank_model = nn.DataParallel(rerank_model)
+    rerank_model.load_state_dict(torch.load('transformer_model_2048.pt'))
     rerank_model.eval()
 
     for dataset in dataset_list:
@@ -367,8 +370,8 @@ def test_transformer_model(model, data_dir, dataset_list, scale_list, gemp, rgem
             torch.save(X, x_path)
 
         cfg = config_gnd(dataset,data_dir)
-        Q = torch.tensor(Q).cuda()
-        X = torch.tensor(X).cuda()
+        Q = torch.tensor(Q).to(device)
+        X = torch.tensor(X).to(device)
         
         print("perform global feature reranking")
 

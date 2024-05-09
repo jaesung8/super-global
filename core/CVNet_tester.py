@@ -27,7 +27,8 @@ def setup_model():
     model = CVNet_Rerank(cfg.MODEL.DEPTH, cfg.MODEL.HEADS.REDUCTION_DIM, cfg.SupG.relup)
     # print(model)
     # cur_device = torch.cuda.current_device()
-    model = model.cuda(device=torch.device('cuda:0'))
+    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+    model = model.to(device)
 
     return model
 

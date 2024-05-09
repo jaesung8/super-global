@@ -7,6 +7,10 @@ import numpy as np
 import test.test_loader as loader
 from test.evaluate import compute_map
 
+
+device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+
+
 @torch.no_grad()
 def extract_feature(model, data_dir, dataset, gnd_fn, split, scale_list_fix, gemp, rgem, sgem, scale_list):
     with torch.no_grad():
@@ -15,7 +19,7 @@ def extract_feature(model, data_dir, dataset, gnd_fn, split, scale_list_fix, gem
         
         for im_list in tqdm(test_loader):
             for idx in range(len(im_list)):
-                im_list[idx] = im_list[idx].cuda()
+                im_list[idx] = im_list[idx].to(device)
                 
                 desc = model.extract_global_descriptor(im_list[idx], gemp, rgem, sgem, scale_list)
 
@@ -44,7 +48,7 @@ def extract_cvnet_feature(model, data_dir, dataset, gnd_fn, split, scale_list):
 
         for im_list in tqdm(test_loader):
             for idx in range(len(im_list)):
-                im_list[idx] = im_list[idx].cuda()
+                im_list[idx] = im_list[idx].to(device)
                 desc = model.encoder_q._forward_singlescale(im_list[idx], False, False)
                 if len(desc.shape) == 1:
                     desc.unsqueeze_(0)
@@ -70,7 +74,7 @@ def extract_feature_list(model, data_dir, dataset, gnd_fn, split, scale_list_fix
         
         for im_list in tqdm(test_loader):
             for idx in range(len(im_list)):
-                im_list[idx] = im_list[idx].cuda()
+                im_list[idx] = im_list[idx].to(device)
                 
                 desc = model.encoder_q._forward(im_list[idx])
                 desc = torch.stack(desc, dim=0)

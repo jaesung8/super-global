@@ -50,7 +50,7 @@ def train_one_epoch(
     loader_length = len(loader)
     train_losses = AverageMeter()
     train_accs = AverageMeter()
-    log_interval = loader_length // 10
+    log_interval = loader_length // 20
     loss_list = []
 
     start_time = time.time()
@@ -70,7 +70,7 @@ def train_one_epoch(
         ##############################################
         optimizer.zero_grad()
         loss.backward()
-        # torch.nn.utils.clip_grad_norm_(model.parameters(), 2.0)
+        torch.nn.utils.clip_grad_norm_(model.parameters(), 2.0)
         optimizer.step()
 
         train_losses.update(loss.item(), 1)
@@ -102,15 +102,15 @@ class BinaryCrossEntropyWithLogits(nn.Module):
 
 
 def train():
-    epochs = 100
-    batch_size = 2000
+    epochs = 30
+    batch_size = 5000
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
     train_sampler = TripletSampler(batch_size=batch_size)
     train_set = FeatureDataset()
     train_loader = DataLoader(train_set, batch_sampler=train_sampler, num_workers=8, pin_memory=True)
 
-    model = MatchERT(device=device, d_global=2048, d_model=128, nhead=4, num_encoder_layers=6, 
+    model = MatchERT(device=device, d_global=2048, d_model=512, nhead=4, num_encoder_layers=6, 
             dim_feedforward=1024, dropout=0.0, activation='relu', normalize_before=False)
     # if resume is not None:
     #     checkpoint = torch.load(resume, map_location=torch.device('cpu'))
@@ -122,9 +122,9 @@ def train():
     parameters = [{'params': model.parameters()}]
 
     loader_length = len(train_loader)
-    optimizer = AdamW(parameters, lr=0.0001, weight_decay=0.0004)
-    # scheduler = (lr_scheduler.MultiStepLR(optimizer, milestones=[16, 18], gamma=0.1), False)
-    scheduler = (lr_scheduler.ExponentialLR(optimizer, gamma=0.96), False)
+    optimizer = AdamW(parameters, lr=0.0001)
+    scheduler = (lr_scheduler.MultiStepLR(optimizer, milestones=[15, 20], gamma=0.1), False)
+    # scheduler = (lr_scheduler.ExponentialLR(optimizer, gamma=0.96), False)
     # if resume is not None and checkpoint.get('optim', None) is not None:
     #     optimizer.load_state_dict(checkpoint['optim'])
     #     del checkpoint
@@ -149,43 +149,53 @@ def train():
 
     q_path = os.path.join(data_dir, f'{dataset}_transformer_q.pt')
     x_path = os.path.join(data_dir, f'{dataset}_transformer_x.pt')
-    Q = torch.load(q_path)
-    X = torch.load(x_path)
+    Q = torch.load(q_path).to(device)
+    X = torch.load(x_path).to(device)
+
     cfg = config_gnd(dataset,data_dir)
     gnd = cfg['gnd']
     nq = len(gnd)
-    Q = torch.tensor(Q).to(device)
-    X = torch.tensor(X).to(device)
+    # Q = torch.tensor(Q)
+    # X = torch.tensor(X).to(device)
     sim = torch.matmul(X[:, 1, :], Q[:, 1, :].T) # 6322 70
     ranks = torch.argsort(-sim, axis=0) # 6322 70
 
-    def evaluate(model):
-        total_sims = []
-        total_eqs = []
-        topk_rank_trans = torch.transpose(ranks,1,0)[:,:400] # 70 400
-        for i in range(nq):
-            rerank_X = X[topk_rank_trans[i]]
-            sims = model(Q[i].expand_as(rerank_X), rerank_X)
-            # eqs = (torch.sigmoid(sims) > 0.5).long()
-            total_sims.append(sims)
-            # total_eqs.append(eqs)
+    del Q, X
+    torch.cuda.empty_cache()
 
-        total_sims = torch.stack(total_sims, dim=0)
+    def evaluate(model, ranks):
+        model.eval()
+        Q = torch.load(q_path).to(device)
+        X = torch.load(x_path).to(device)
+        with torch.no_grad():
+            total_sims = []
+            total_eqs = []
+            topk_rank_trans = torch.transpose(ranks,1,0)[:,:400] # 70 400
+        
+            for i in range(nq):
+                rerank_X = X[topk_rank_trans[i]]
+                sims = model(Q[i].expand_as(rerank_X), rerank_X)
+                # eqs = (torch.sigmoid(sims) > 0.5).long()
+                total_sims.append(sims)
+                # total_eqs.append(eqs)
 
-        # reranks = torch.argsort(-(total_sims + torch.transpose(sim[:400],1,0)), axis=1)
-        reranks = torch.argsort(-total_sims, axis=1)
+            total_sims = torch.stack(total_sims, dim=0)
 
-        ranks_transpose = torch.transpose(ranks,1,0)[:,400:]
-        rerank_final = []
-        for i in range(nq):
-            temp_concat = torch.concat([topk_rank_trans[i][reranks[i]], ranks_transpose[i]],0)
-            rerank_final.append(temp_concat) # 6322
-        ranks = torch.transpose(torch.stack(rerank_final,0),1,0)
-        ranks = ranks.data.cpu().numpy()
-        ks = [1, 5, 10]
-        (mapE, _, _, _), (mapM, _, _, _), (mapH, _, _, _) = test_revisitop(cfg, ks, [ranks, ranks, ranks])
+            # reranks = torch.argsort(-(total_sims + torch.transpose(sim[:400],1,0)), axis=1)
+            reranks = torch.argsort(-total_sims, axis=1)
+
+            ranks_transpose = torch.transpose(ranks,1,0)[:,400:]
+            rerank_final = []
+            for i in range(nq):
+                temp_concat = torch.concat([topk_rank_trans[i][reranks[i]], ranks_transpose[i]],0)
+                rerank_final.append(temp_concat) # 6322
+            ranks = torch.transpose(torch.stack(rerank_final,0),1,0)
+            ranks = ranks.data.cpu().numpy()
+            ks = [1, 5, 10]
+            (mapE, _, _, _), (mapM, _, _, _), (mapH, _, _, _) = test_revisitop(cfg, ks, [ranks, ranks, ranks])
 
         return mapE, mapM, mapH
+
 
     train_loss_list = []
     max_mapH = 0
@@ -200,11 +210,11 @@ def train():
             epoch=epoch,
         )
         train_loss_list.extend(loss_list)
-        mapE, mapM, mapH = evaluate(model)
+        mapE, mapM, mapH = evaluate(model, ranks)
         if mapH > max_mapH:
             max_mapH = mapH
             torch.save(model.state_dict(), 'transformer_model_2048.pt')
-            print(f'Max mapH {np.around(mapH*100, decimals=2)}')
+            print(f'Max mapH {np.around(mapH*100, decimals=2)}, mapM {np.around(mapM*100, decimals=2)}')
         # validation
         # torch.cuda.empty_cache()
         # result = eval_function()
@@ -218,10 +228,11 @@ def train():
         #     torch.save({'state': state_dict_to_cpu(best_val[2]), 'optim': optimizer.state_dict()}, save_name)
 
 
-    plt.plot(train_loss_list)
-    plt.xlabel('Iteration')
-    plt.ylabel('Loss')
-    plt.savefig('train_loss.png')
+        plt.plot(train_loss_list)
+        plt.xlabel('Iteration')
+        plt.ylabel('Loss')
+        plt.savefig('train_loss.png')
+        plt.cla()
 
     # logging
     # ex.info['metrics'] = best_val[1]
